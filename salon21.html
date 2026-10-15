@@ -1,0 +1,1159 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Salon 21</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700..800;1,6..96,700..800&family=Rubik:ital,wght@0,400..800;1,500..800&display=swap">
+<style>
+:root{
+  /* Layout: walnut-railed felt table. Croupier figure + his cards on top, arc lettering in the middle, the player's cards below with the player's own hands resting at the bottom edge (point of view). Dark tray underneath for bets and actions. One committed dark look: burgundy room, green felt, brass. */
+  --bg:#150a0d;
+  --felt:#0f4a3c; --felt-lo:#0a3228; --felt-hi:#17695b;
+  --rail:#35200f; --rail-hi:#5f3d21;
+  --brass:#e3b45a; --brass-lo:#8f7233;
+  --ivory:#f8f3e6; --ink:#16120f;
+  --oxblood:#8e1f2f; --tray:#1c1110;
+  --lose:#ffb3a6;
+  --skin:#e2b48a;
+  --skin-shade:color-mix(in srgb,var(--skin) 80%,#000);
+  --skin-hi:color-mix(in srgb,var(--skin) 70%,#fff);
+  --skin-deep:color-mix(in srgb,var(--skin) 52%,#3a1608);
+  --font-display:'Bodoni Moda','Didot','Bodoni 72',Georgia,serif;
+  --font-body:'Rubik',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-mono:'Rubik',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --cw-base:clamp(54px,15vw,92px);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:var(--font-body); font-size:16px; line-height:1.45;
+  color:var(--ivory);
+  background:var(--bg);
+  background-image:
+    radial-gradient(90% 55% at 50% 0%, rgba(142,31,47,.30), transparent 70%),
+    linear-gradient(45deg, rgba(227,180,90,.035) 25%, transparent 25% 75%, rgba(227,180,90,.035) 75%),
+    linear-gradient(45deg, rgba(227,180,90,.035) 25%, transparent 25% 75%, rgba(227,180,90,.035) 75%);
+  background-size:auto, 56px 56px, 56px 56px;
+  background-position:0 0, 0 0, 28px 28px;
+}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+
+.app{
+  min-height:100%;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:16px 24px;
+}
+.wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.stack{display:flex;flex-direction:column;gap:16px}
+
+.eyebrow{font:600 12.5px/1 var(--font-body);letter-spacing:.14em;text-transform:uppercase;color:var(--brass)}
+
+/* header */
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px 20px;flex-wrap:wrap}
+.brand{display:flex;flex-direction:column;gap:8px;min-width:0}
+.brand h1{margin:0;font:800 clamp(34px,7vw,48px)/.95 var(--font-display);letter-spacing:-.01em;text-wrap:balance}
+.brand h1 em{font-style:italic;color:var(--brass);font-weight:700}
+.top-right{display:flex;align-items:flex-end;gap:18px}
+.purse{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.bank{font:600 clamp(28px,6.5vw,36px)/1 var(--font-body);font-variant-numeric:tabular-nums;color:var(--ivory)}
+
+/* table */
+.table{
+  position:relative;padding:12px;
+  border-radius:26px 26px 84px 84px / 26px 26px 52px 52px;
+  background:linear-gradient(165deg,var(--rail-hi),var(--rail) 60%,#241508);
+  box-shadow:0 34px 60px -26px #000, inset 0 1px 0 rgba(255,255,255,.14), inset 0 -2px 0 rgba(0,0,0,.4);
+}
+.felt{
+  --cw:var(--cw-base);
+  position:relative;overflow:hidden;
+  border-radius:16px 16px 72px 72px / 16px 16px 42px 42px;
+  padding:16px 12px min(46%,215px);
+  background:radial-gradient(120% 90% at 50% 38%,var(--felt-hi) 0%,var(--felt) 42%,var(--felt-lo) 100%);
+  display:grid;gap:6px;
+  box-shadow:inset 0 6px 30px rgba(0,0,0,.55);
+}
+.felt::before{content:"";position:absolute;inset:9px;border:1px dashed rgba(227,180,90,.32);border-radius:inherit;pointer-events:none;z-index:3}
+.felt::after{
+  content:"";position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;opacity:.35;z-index:3;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+.shoe-art{
+  position:absolute;top:16px;right:18px;width:calc(var(--cw)*.6);aspect-ratio:5/7;border-radius:5px;z-index:2;
+  background:repeating-linear-gradient(45deg,rgba(246,240,226,.16) 0 2px,transparent 2px 7px),var(--oxblood);
+  border:2px solid var(--ivory);
+  box-shadow:3px 3px 0 -1px #d8d0bd,6px 6px 0 -2px #bdb49d,9px 9px 0 -3px #a39a85,12px 14px 18px -4px rgba(0,0,0,.6);
+}
+
+/* croupier */
+.seat{display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:1}
+.croupier{width:clamp(190px,46vw,290px);height:auto;display:block;margin-bottom:calc(var(--cw)*-.3);filter:drop-shadow(0 10px 12px rgba(0,0,0,.45))}
+.croupier .head{animation:bob 4.5s ease-in-out infinite}
+.croupier .eye{transform-box:fill-box;transform-origin:center;animation:blink 5.5s infinite}
+.croupier #dArmR{transform-origin:268px 142px}
+.croupier.flick #dArmR{animation:dFlick .5s ease-in-out}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.6px)}}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes dFlick{0%{transform:rotate(0)}40%{transform:rotate(17deg) translateY(-3px)}100%{transform:rotate(0)}}
+
+.seat-head{display:flex;align-items:center;gap:10px;min-height:28px}
+.mid{position:relative;display:grid;place-items:center;min-height:calc(var(--cw)*.9);z-index:1}
+.arc{width:min(100%,540px);height:auto;display:block;transition:opacity .4s}
+.arc text{font-family:var(--font-display);fill:var(--brass);font-weight:800;font-size:22px;letter-spacing:.14em}
+.arc text.sm{font-family:var(--font-body);font-weight:500;font-size:11.5px;letter-spacing:.2em;fill:var(--ivory);opacity:.85}
+.felt.has-stamp .arc{opacity:.1}
+
+.stamp{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:6px;pointer-events:none;opacity:0;transform:scale(1.35) rotate(-5deg);transition:opacity .25s,transform .35s cubic-bezier(.2,.9,.3,1.2)}
+.stamp.show{opacity:1;transform:scale(1) rotate(-5deg)}
+.stamp b{font:italic 800 clamp(38px,9.5vw,72px)/1 var(--font-display);text-shadow:0 3px 0 rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.55)}
+.stamp small{font:600 16px var(--font-body);letter-spacing:.12em;text-transform:uppercase;font-variant-numeric:tabular-nums;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.stamp.win b{color:var(--brass)} .stamp.win small{color:var(--ivory)}
+.stamp.lose b{color:var(--lose)} .stamp.lose small{color:var(--ivory)}
+.stamp.push b{color:var(--ivory)} .stamp.push small{color:var(--ivory)}
+
+/* player's hands (point of view) */
+.myhands{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,440px);height:auto;display:block;z-index:0;pointer-events:none}
+.myhands .shirt{fill:#f6f3ec}
+.myhands .shirt2{fill:#e6e1d4}
+.myhands .crease{stroke:#c3bdad;stroke-width:1.4;stroke-linecap:round;fill:none}
+.myhands .hi{fill:#fff;opacity:.55}
+.myhands .lnk{stroke:#6b727c;stroke-width:.9;fill:none}
+.myhands .sk{fill:var(--skin)}
+.myhands .nail{fill:rgba(255,255,255,.3)}
+.myhands .ln{stroke:var(--skin-shade);stroke-width:1.4;stroke-linecap:round;fill:none}
+.myhands .gest{transform-box:view-box}
+.myhands.hit #gR{animation:gHit .55s ease-in-out}
+.myhands.stand #gR{animation:gWave .8s ease-in-out}
+.myhands.dbl #gR,.myhands.dbl #gL{animation:gPush .6s ease-in-out}
+@keyframes gHit{0%{transform:translateY(0)}35%{transform:translateY(16px)}60%{transform:translateY(16px)}100%{transform:translateY(0)}}
+@keyframes gWave{0%{transform:translateX(0)}25%{transform:translateX(-22px)}60%{transform:translateX(18px)}100%{transform:translateX(0)}}
+@keyframes gPush{0%{transform:translateY(0)}45%{transform:translateY(-14px)}100%{transform:translateY(0)}}
+
+/* hands and cards */
+.hands{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:26px 28px;position:relative;z-index:1;padding-top:4px}
+.hands.many{--cw:calc(var(--cw-base)*.8);gap:22px 20px}
+.hand{display:flex;flex-direction:column;align-items:center;gap:10px;padding:6px 8px;border-radius:14px;transition:box-shadow .25s,outline-color .25s;outline:1.5px solid transparent;outline-offset:2px}
+.hand.active{outline-color:var(--brass);box-shadow:0 0 28px -6px rgba(227,180,90,.6)}
+.cards{display:flex;justify-content:center;min-height:calc(var(--cw)*1.42)}
+.cards .card:not(:first-child){margin-left:calc(var(--cw)*-.56)}
+.ghost{width:var(--cw);height:calc(var(--cw)*1.42);border:1.5px dashed rgba(246,240,226,.32);border-radius:calc(var(--cw)*.09)}
+.ghost+.ghost{margin-left:10px}
+.meta{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;min-height:30px}
+
+.card{
+  --rot:0deg;
+  width:var(--cw);height:calc(var(--cw)*1.42);font-size:var(--cw);
+  position:relative;flex:none;perspective:900px;transform:rotate(var(--rot));
+}
+.card.deal{animation:dealIn .5s cubic-bezier(.2,.8,.25,1) both}
+@keyframes dealIn{
+  from{transform:translate(min(38vw,300px),-190px) rotate(18deg) scale(.85);opacity:0}
+  to{transform:rotate(var(--rot));opacity:1}
+}
+.inner{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.3,.7,.2,1)}
+.card.down .inner{transform:rotateY(180deg)}
+.face,.back{position:absolute;inset:0;border-radius:calc(var(--cw)*.09);backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:0 1px 0 rgba(0,0,0,.2),0 10px 16px -6px rgba(0,0,0,.6)}
+.face{background:linear-gradient(160deg,#fffcf4,var(--ivory) 60%,#ece3cf);color:var(--ink)}
+.face.red{color:#c2132b}
+.corner{position:absolute;display:flex;flex-direction:column;align-items:center;gap:.02em;line-height:1}
+.corner b{font:700 .3em/1 var(--font-body);letter-spacing:-.04em}
+.corner i{font-style:normal;font-size:.24em}
+.corner.tl{top:.06em;left:.07em}
+.corner.br{bottom:.06em;right:.07em;transform:rotate(180deg)}
+.pip{position:absolute;inset:0;display:grid;place-items:center;font-size:.56em;line-height:1}
+.pip.court{font:800 .6em/1 var(--font-body);opacity:.92}
+.back{
+  transform:rotateY(180deg);border:calc(var(--cw)*.05) solid var(--ivory);
+  background:
+    repeating-linear-gradient(45deg,rgba(246,240,226,.2) 0 2px,transparent 2px 8px),
+    repeating-linear-gradient(-45deg,rgba(246,240,226,.2) 0 2px,transparent 2px 8px),
+    var(--oxblood);
+}
+
+.score{font:600 15px/1 var(--font-body);font-variant-numeric:tabular-nums;background:rgba(0,0,0,.5);border:1px solid rgba(246,240,226,.4);padding:6px 11px;border-radius:99px;min-width:2.6em;text-align:center}
+.score.bust{color:var(--lose);border-color:var(--lose)}
+.score.bj{color:var(--brass);border-color:var(--brass)}
+.bet{display:inline-flex;align-items:center;gap:7px;font:600 15px/1 var(--font-body);font-variant-numeric:tabular-nums;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.tag{font:700 12.5px/1 var(--font-body);letter-spacing:.07em;text-transform:uppercase;padding:6px 10px;border-radius:99px}
+.tag.win{background:var(--brass);color:var(--ink)}
+.tag.lose{background:var(--oxblood);color:var(--ivory)}
+.tag.push{border:1px solid var(--ivory);color:var(--ivory);background:rgba(0,0,0,.35)}
+
+/* chips */
+.c10{--c:#ece4d0;--edge:#b3182b;--tx:var(--ink)}
+.c50{--c:#8e1f2f;--edge:#ece4d0;--tx:var(--ivory)}
+.c100{--c:#1d1b24;--edge:var(--brass);--tx:var(--ivory)}
+.c500{--c:#e3b45a;--edge:#8e1f2f;--tx:var(--ink)}
+.c1000{--c:#5a3b8a;--edge:#ece4d0;--tx:var(--ivory)}
+.c5000{--c:#1f4f86;--edge:#e3b45a;--tx:var(--ivory)}
+.c10000{--c:#d3d7de;--edge:#1d1b24;--tx:var(--ink)}
+.dot{width:16px;height:16px;border-radius:50%;display:inline-block;
+  background:radial-gradient(circle,var(--c) 0 52%,transparent 54%),repeating-conic-gradient(var(--edge) 0 30deg,var(--c) 30deg 60deg);
+  box-shadow:0 1px 3px rgba(0,0,0,.6)}
+.chip{
+  --size:64px;appearance:none;border:0;padding:0;cursor:pointer;
+  width:var(--size);aspect-ratio:1;border-radius:50%;position:relative;display:grid;place-items:center;
+  background:radial-gradient(circle,var(--c) 0 60%,transparent 62%),repeating-conic-gradient(var(--edge) 0 15deg,var(--c) 15deg 30deg);
+  box-shadow:0 6px 12px -4px rgba(0,0,0,.7),inset 0 0 0 2px rgba(0,0,0,.25);
+  transition:transform .15s,box-shadow .15s,opacity .15s;
+}
+.chip::after{content:"";position:absolute;inset:15%;border-radius:50%;border:1.5px solid var(--edge);opacity:.75}
+.chip span{position:relative;z-index:1;font:700 16px/1 var(--font-body);color:var(--tx);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.chip:hover:not(:disabled){transform:translateY(-4px) rotate(-6deg);box-shadow:0 12px 16px -6px rgba(0,0,0,.7),inset 0 0 0 2px rgba(0,0,0,.25)}
+.chip:disabled{opacity:.3;cursor:not-allowed;filter:grayscale(.5)}
+
+/* tray */
+.tray{background:var(--tray);border:1px solid rgba(227,180,90,.3);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:16px;box-shadow:0 20px 40px -24px #000}
+.status{margin:0;min-height:1.5em;font:500 clamp(18px,4.6vw,21px)/1.3 var(--font-body);text-wrap:balance}
+.panels{display:grid}
+.panel{grid-area:1/1;display:flex;flex-direction:column;gap:16px;align-items:stretch;justify-content:center}
+.panel.off{visibility:hidden;pointer-events:none}
+.chips{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.bet-row{display:flex;align-items:center;justify-content:space-between;gap:12px 16px;flex-wrap:wrap}
+.bet-read{display:flex;align-items:baseline;gap:10px}
+.bet-read strong{font:600 32px/1 var(--font-body);font-variant-numeric:tabular-nums}
+.custom{display:flex;gap:8px;align-items:center}
+.field{
+  appearance:none;width:170px;max-width:100%;background:rgba(0,0,0,.4);border:1px solid rgba(246,240,226,.4);
+  border-radius:12px;padding:13px 14px;font:600 16px/1 var(--font-body);font-variant-numeric:tabular-nums;color:var(--ivory)
+}
+.field::placeholder{color:rgba(246,240,226,.6);font-weight:400}
+.field:disabled{opacity:.4}
+.deal-row{display:flex;align-items:center;justify-content:space-between;gap:10px 14px;flex-wrap:wrap}
+.deal-row .left{display:flex;gap:6px;flex-wrap:wrap}
+.act-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.broke{align-items:center;text-align:center}
+.broke p{margin:0;max-width:38ch;color:rgba(246,240,226,.9)}
+
+.btn{
+  appearance:none;border:1px solid rgba(246,240,226,.4);background:rgba(246,240,226,.08);
+  font:600 14px/1 var(--font-body);letter-spacing:.08em;text-transform:uppercase;
+  padding:15px 18px;border-radius:12px;cursor:pointer;
+  display:inline-flex;gap:9px;align-items:center;justify-content:center;
+  transition:transform .12s,background .15s,border-color .15s;
+}
+.btn:hover:not(:disabled){background:rgba(246,240,226,.16);transform:translateY(-1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.primary{background:linear-gradient(#efc87a,#cb9a40);color:var(--ink);border-color:#f4daa0;box-shadow:0 8px 20px -8px rgba(227,180,90,.7)}
+.btn.primary:hover:not(:disabled){background:linear-gradient(#f6d58e,#d6a54c)}
+.btn.ghost{background:none;border-color:transparent;color:rgba(246,240,226,.88);text-transform:none;letter-spacing:.01em;font-weight:500;font-size:15px;padding:11px 13px}
+.btn.ghost:hover:not(:disabled){color:var(--ivory);background:rgba(246,240,226,.1)}
+.btn.small{padding:12px 14px;font-size:13px}
+.btn kbd{font:600 11px/1 var(--font-body);border:1px solid currentColor;border-radius:4px;padding:3px 5px;opacity:.7}
+
+.shoe-meter{display:flex;align-items:center;gap:12px;font:500 12.5px/1 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:rgba(246,240,226,.8)}
+.bar{position:relative;flex:1;height:7px;border-radius:9px;background:rgba(246,240,226,.16);overflow:visible}
+.bar i{position:absolute;inset:0 auto 0 0;border-radius:9px;background:linear-gradient(90deg,var(--brass-lo),var(--brass));width:100%;transition:width .4s}
+.bar b{position:absolute;left:25%;top:-4px;bottom:-4px;width:2px;background:var(--oxblood);box-shadow:0 0 0 1px rgba(246,240,226,.6)}
+.shoe-meter output{font-variant-numeric:tabular-nums;min-width:3ch;text-align:right}
+
+/* footer */
+.foot{display:flex;flex-direction:column;gap:16px;padding-top:4px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:12px 16px}
+.stat{display:flex;flex-direction:column;gap:6px}
+.stat strong{font:600 22px/1 var(--font-body);font-variant-numeric:tabular-nums}
+.stat span{font:500 12px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:rgba(246,240,226,.8)}
+.rules{margin:0;font:400 14px/1.6 var(--font-body);color:rgba(246,240,226,.85);max-width:72ch}
+.foot-row{display:flex;gap:14px 24px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.setup{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.setup label{font:500 13px var(--font-body);color:rgba(246,240,226,.85)}
+.setup .field{width:130px;padding:11px 12px;font-size:15px}
+.skins{display:flex;align-items:center;gap:8px;font:500 13px var(--font-body);color:rgba(246,240,226,.85)}
+.skin{appearance:none;width:26px;height:26px;border-radius:50%;border:2px solid rgba(246,240,226,.35);background:var(--sw);cursor:pointer;padding:0}
+.skin[aria-pressed="true"]{border-color:var(--brass);box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--brass)}
+
+@media (max-width:520px){
+  .felt{padding-left:6px;padding-right:6px}
+  .tray{padding:14px}
+  .chip{--size:58px}
+  .bet-row{justify-content:center}
+  .deal-row{justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+[hidden]{display:none!important}
+</style>
+
+</head>
+<body>
+<div class="app">
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <span class="eyebrow">Blackjack · sabot de 6 jeux</span>
+      <h1>Salon <em>21</em></h1>
+    </div>
+    <div class="top-right">
+      <button class="btn ghost" type="button" id="soundBtn" data-act="sound" aria-pressed="true">Son : oui</button>
+      <div class="purse">
+        <span class="eyebrow">Jetons</span>
+        <div class="bank" id="bank">10 000</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="stack">
+    <section class="table" aria-label="Table de blackjack">
+      <div class="felt" id="felt">
+        <div class="shoe-art" aria-hidden="true"></div>
+
+        <!-- ===== Croupier ===== -->
+        <div class="seat">
+          <svg class="croupier" id="croupier" viewBox="0 28 320 162" aria-hidden="true">
+            <defs>
+              <linearGradient id="jk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d2128"/><stop offset="1" stop-color="#150e11"/></linearGradient>
+              <linearGradient id="vs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a02a40"/><stop offset="1" stop-color="#5e1424"/></linearGradient>
+            </defs>
+            <!-- épaules -->
+            <path d="M14 190 C14 146 62 124 108 119 L212 119 C258 124 306 146 306 190 Z" fill="url(#jk)"/>
+            <!-- gilet -->
+            <path d="M120 120 L160 126 L200 120 L204 190 L116 190 Z" fill="url(#vs)"/>
+            <!-- chemise -->
+            <path d="M134 119 L186 119 L160 170 Z" fill="#f8f3e6"/>
+            <!-- revers -->
+            <path d="M104 120 L134 119 L158 176 L132 190 L100 190 Z" fill="#241a1f"/>
+            <path d="M216 120 L186 119 L162 176 L188 190 L220 190 Z" fill="#241a1f"/>
+            <circle cx="120" cy="142" r="4.5" fill="#e3b45a"/>
+            <circle cx="160" cy="184" r="3" fill="#e3b45a"/>
+            <!-- bras gauche -->
+            <path d="M52 142 L72 180" stroke="#1d1519" stroke-width="30" stroke-linecap="round" fill="none"/>
+            <path d="M68 172 L74 184" stroke="#f8f3e6" stroke-width="26" stroke-linecap="butt" fill="none"/>
+            <ellipse cx="78" cy="187" rx="16" ry="10" fill="#efc7a1"/>
+            <!-- bras droit (geste de distribution) -->
+            <g id="dArmR">
+              <path d="M268 142 L248 180" stroke="#1d1519" stroke-width="30" stroke-linecap="round" fill="none"/>
+              <path d="M252 172 L246 184" stroke="#f8f3e6" stroke-width="26" stroke-linecap="butt" fill="none"/>
+              <ellipse cx="242" cy="187" rx="16" ry="10" fill="#efc7a1"/>
+            </g>
+            <!-- cou, tête -->
+            <g class="head">
+              <path d="M147 96 L173 96 L176 122 Q160 132 144 122 Z" fill="#d9a983"/>
+              <ellipse cx="131" cy="76" rx="6" ry="8" fill="#e6b88f"/>
+              <ellipse cx="189" cy="76" rx="6" ry="8" fill="#e6b88f"/>
+              <ellipse cx="160" cy="72" rx="29" ry="34" fill="#efc7a1"/>
+              <path d="M130 70 C126 40 148 33 162 35 C182 34 195 48 190 70 C186 58 176 51 160 51 C146 51 135 57 130 70 Z" fill="#1b1311"/>
+              <path d="M143 68 Q149 64 155 67" stroke="#1b1311" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+              <path d="M165 67 Q171 64 177 68" stroke="#1b1311" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+              <ellipse class="eye" cx="149" cy="76" rx="3.2" ry="3.6" fill="#1b1311"/>
+              <ellipse class="eye" cx="171" cy="76" rx="3.2" ry="3.6" fill="#1b1311"/>
+              <path d="M160 78 Q157 88 161 90" stroke="#c99870" stroke-width="2" stroke-linecap="round" fill="none"/>
+              <path d="M147 97 Q160 90 173 97 Q166 101 160 98 Q154 101 147 97 Z" fill="#1b1311"/>
+              <path d="M152 104 Q160 109 168 104" stroke="#8a4b3a" stroke-width="2" stroke-linecap="round" fill="none"/>
+            </g>
+            <!-- nœud papillon -->
+            <path d="M160 127 L138 116 L138 138 Z" fill="#0e090b"/>
+            <path d="M160 127 L182 116 L182 138 Z" fill="#0e090b"/>
+            <rect x="154" y="121" width="12" height="12" rx="3" fill="#1d1418"/>
+          </svg>
+
+          <div class="cards" id="dealerCards"></div>
+          <div class="seat-head"><span class="eyebrow">Croupier</span><span class="score" id="dealerScore" hidden></span></div>
+        </div>
+
+        <div class="mid">
+          <svg class="arc" viewBox="0 0 600 124" aria-hidden="true">
+            <defs>
+              <path id="arcA" d="M 50 104 Q 300 4 550 104"/>
+              <path id="arcB" d="M 90 122 Q 300 46 510 122"/>
+            </defs>
+            <text><textPath href="#arcA" startOffset="50%" text-anchor="middle">BLACKJACK PAYE 3 POUR 2</textPath></text>
+            <text class="sm"><textPath href="#arcB" startOffset="50%" text-anchor="middle">LE CROUPIER TIRE À 16 ET RESTE À 17</textPath></text>
+          </svg>
+          <div class="stamp" id="stamp" aria-hidden="true"><b></b><small></small></div>
+        </div>
+
+        <div class="hands" id="hands"></div>
+
+        <!-- ===== Tes mains (vue à la première personne) ===== -->
+        <svg class="myhands" id="myhands" viewBox="0 0 420 250" aria-hidden="true"><defs>
+<linearGradient id="skinG" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0" style="stop-color:var(--skin-shade)"/>
+  <stop offset=".24" style="stop-color:var(--skin)"/>
+  <stop offset=".52" style="stop-color:var(--skin-hi)"/>
+  <stop offset=".78" style="stop-color:var(--skin)"/>
+  <stop offset="1" style="stop-color:var(--skin-shade)"/>
+</linearGradient>
+<linearGradient id="armV" gradientUnits="userSpaceOnUse" x1="0" y1="-110" x2="0" y2="150">
+  <stop offset="0" stop-color="#3a1608" stop-opacity="0"/>
+  <stop offset=".5" stop-color="#3a1608" stop-opacity=".05"/>
+  <stop offset="1" stop-color="#3a1608" stop-opacity=".36"/>
+</linearGradient>
+<radialGradient id="knuckle" cx=".5" cy=".5" r=".5">
+  <stop offset="0" stop-color="#fff" stop-opacity=".34"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="blush" cx=".5" cy=".5" r=".5">
+  <stop offset="0" stop-color="#e0877a" stop-opacity=".42"/><stop offset="1" stop-color="#e0877a" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="web" cx=".5" cy=".5" r=".5">
+  <stop offset="0" stop-color="#3a1608" stop-opacity=".34"/><stop offset="1" stop-color="#3a1608" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="nailG" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#fbf0ec"/><stop offset=".55" stop-color="#f4d6cf"/><stop offset="1" stop-color="#e8b0a4"/>
+</linearGradient>
+<linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f1f3f6"/><stop offset=".45" stop-color="#98a0ab"/><stop offset="1" stop-color="#d9dde3"/></linearGradient>
+<linearGradient id="steelH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6f7782"/><stop offset=".18" stop-color="#c7ccd4"/><stop offset=".5" stop-color="#eef0f3"/><stop offset=".82" stop-color="#b9bfc8"/><stop offset="1" stop-color="#6a727d"/></linearGradient>
+<linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".3"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<pattern id="tap" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill="#1b4274"/><path d="M0 0H4M0 0V4" stroke="#0e2a50" stroke-width=".9"/><path d="M2 0V4M0 2H4" stroke="#2c5c9a" stroke-width=".35" opacity=".7"/></pattern>
+<pattern id="cloth" width="3" height="3" patternUnits="userSpaceOnUse"><rect width="3" height="3" fill="#f8f5ee"/><path d="M0 .75H3M.75 0V3" stroke="#ded9cb" stroke-width=".7"/><path d="M0 2.25H3M2.25 0V3" stroke="#fff" stroke-width=".45" opacity=".8"/></pattern>
+<pattern id="cloth2" width="3" height="3" patternUnits="userSpaceOnUse"><rect width="3" height="3" fill="#ebe6d9"/><path d="M0 .75H3M.75 0V3" stroke="#d3cdbc" stroke-width=".7"/><path d="M0 2.25H3M2.25 0V3" stroke="#fff" stroke-width=".4" opacity=".6"/></pattern>
+<linearGradient id="rollShade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".4"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#5f5744" stop-opacity=".3"/></linearGradient>
+<linearGradient id="rollSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5f5744" stop-opacity=".34"/><stop offset=".22" stop-color="#5f5744" stop-opacity="0"/><stop offset=".78" stop-color="#5f5744" stop-opacity="0"/><stop offset="1" stop-color="#5f5744" stop-opacity=".34"/></linearGradient>
+<linearGradient id="seamG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--skin);stop-opacity:0"/><stop offset=".5" style="stop-color:var(--skin);stop-opacity:.8"/><stop offset="1" style="stop-color:var(--skin);stop-opacity:0"/></linearGradient>
+<mask id="silMask" maskUnits="userSpaceOnUse" x="-130" y="-230" width="280" height="480"><use href="#geo" fill="#fff"/></mask>
+<filter id="bl" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.1"/></filter>
+<filter id="bsoft" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="2.4"/></filter>
+<filter id="b5" filterUnits="userSpaceOnUse" x="-130" y="-230" width="280" height="480"><feGaussianBlur stdDeviation="5"/></filter>
+<filter id="skinTex" filterUnits="userSpaceOnUse" x="-130" y="-230" width="280" height="480" color-interpolation-filters="sRGB">
+  <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="9" result="n1"/>
+  <feColorMatrix in="n1" type="matrix" values="0 0 0 0 .42  0 0 0 0 .24  0 0 0 0 .18  0 0 0 .5 -.25" result="pores"/>
+  <feComposite in="pores" in2="SourceAlpha" operator="in" result="p2"/>
+  <feTurbulence type="fractalNoise" baseFrequency=".06 .3" numOctaves="2" seed="3" result="n2"/>
+  <feColorMatrix in="n2" type="matrix" values="0 0 0 0 .8  0 0 0 0 .45  0 0 0 0 .38  0 0 0 .3 -.14" result="mottle"/>
+  <feComposite in="mottle" in2="SourceAlpha" operator="in" result="m2"/>
+  <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="m2"/><feMergeNode in="p2"/></feMerge>
+</filter>
+<g id="geo"><path d="M-37 150 C-34 70 -31 30 -29 8 C-33 -10 -40 -45 -41 -90 C-30 -104 -10 -108 0 -108 C12 -108 30 -104 41 -92 C43 -62 40 -28 31 8 C33 30 35 70 37 150 Z"/><ellipse cx="-35" cy="-30" rx="12" ry="28" transform="rotate(-14 -35 -30)"/><g transform="translate(-33 -22) rotate(-33)"><path d="M-12.5 14 C-12.9 -19.8 -12.25 -40.92 -10.75 -57 C-8.75 -63.5 -4.5 -67.2 0 -67.2 C4.5 -67.2 8.75 -63.5 10.75 -57 C12.25 -40.92 12.9 -19.8 12.5 14 Z"/></g><g transform="translate(-30 -92) rotate(-5)"><path d="M-10 14 C-10.4 -21 -9.8 -43.4 -8.6 -61 C-7 -67.5 -3.6 -71.2 0 -71.2 C3.6 -71.2 7 -67.5 8.6 -61 C9.8 -43.4 10.4 -21 10 14 Z"/></g><g transform="translate(-9 -97) rotate(-1)"><path d="M-10.5 14 C-10.9 -23.4 -10.29 -48.36 -9.03 -69 C-7.35 -75.5 -3.78 -79.2 0 -79.2 C3.78 -79.2 7.35 -75.5 9.03 -69 C10.29 -48.36 10.9 -23.4 10.5 14 Z"/></g><g transform="translate(12 -94) rotate(3)"><path d="M-9.75 14 C-10.15 -21.6 -9.55 -44.64 -8.38 -63 C-6.82 -69.5 -3.51 -73.2 0 -73.2 C3.51 -73.2 6.82 -69.5 8.38 -63 C9.55 -44.64 10.15 -21.6 9.75 14 Z"/></g><g transform="translate(33 -86) rotate(9)"><path d="M-8.25 14 C-8.65 -16.8 -8.08 -34.72 -7.09 -47 C-5.77 -53.5 -2.97 -57.2 0 -57.2 C2.97 -57.2 5.77 -53.5 7.09 -47 C8.08 -34.72 8.65 -16.8 8.25 14 Z"/></g></g><g id="handShape"><use href="#geo" fill="#04120d" opacity=".5" filter="url(#b5)" transform="translate(5 11)"/><use href="#geo" fill="none" style="stroke:var(--skin-deep)" stroke-width="1.6" stroke-opacity=".55" stroke-linejoin="round"/><g filter="url(#skinTex)"><use href="#geo" fill="url(#skinG)"/></g><rect x="-46" y="-102" width="92" height="34" fill="url(#seamG)" mask="url(#silMask)"/><path d="M-37 150 C-34 70 -31 30 -29 8 C-33 -10 -40 -45 -41 -90 C-30 -104 -10 -108 0 -108 C12 -108 30 -104 41 -92 C43 -62 40 -28 31 8 C33 30 35 70 37 150 Z" fill="url(#armV)"/><ellipse cx="-20" cy="-104" rx="4" ry="9" fill="url(#web)"/><ellipse cx="1" cy="-104" rx="4" ry="9" fill="url(#web)"/><ellipse cx="22.5" cy="-104" rx="4" ry="9" fill="url(#web)"/><ellipse cx="-30" cy="-94" rx="12" ry="8" fill="url(#knuckle)"/><ellipse cx="-30" cy="-87" rx="12.4" ry="9" fill="url(#blush)" opacity=".55"/><ellipse cx="-9" cy="-99" rx="12.6" ry="8" fill="url(#knuckle)"/><ellipse cx="-9" cy="-92" rx="13.02" ry="9" fill="url(#blush)" opacity=".55"/><ellipse cx="12" cy="-96" rx="11.7" ry="8" fill="url(#knuckle)"/><ellipse cx="12" cy="-89" rx="12.09" ry="9" fill="url(#blush)" opacity=".55"/><ellipse cx="33" cy="-88" rx="9.9" ry="8" fill="url(#knuckle)"/><ellipse cx="33" cy="-81" rx="10.23" ry="9" fill="url(#blush)" opacity=".55"/><path d="M-28.5 -84 Q-22.8 -52 -13.8 -18" fill="none" style="stroke:var(--skin-deep)" stroke-width="5" stroke-opacity=".12" stroke-linecap="round" filter="url(#bl)"/><path d="M-26.3 -84 Q-20.6 -52 -11.8 -18" fill="none" stroke="#fff" stroke-width="1.6" stroke-opacity=".16" stroke-linecap="round" filter="url(#bl)"/><path d="M-8.55 -84 Q-6.84 -52 -4.14 -18" fill="none" style="stroke:var(--skin-deep)" stroke-width="5" stroke-opacity=".12" stroke-linecap="round" filter="url(#bl)"/><path d="M-6.35 -84 Q-4.64 -52 -2.14 -18" fill="none" stroke="#fff" stroke-width="1.6" stroke-opacity=".16" stroke-linecap="round" filter="url(#bl)"/><path d="M11.4 -84 Q9.12 -52 5.52 -18" fill="none" style="stroke:var(--skin-deep)" stroke-width="5" stroke-opacity=".12" stroke-linecap="round" filter="url(#bl)"/><path d="M13.6 -84 Q11.32 -52 7.52 -18" fill="none" stroke="#fff" stroke-width="1.6" stroke-opacity=".16" stroke-linecap="round" filter="url(#bl)"/><path d="M31.35 -84 Q25.08 -52 15.18 -18" fill="none" style="stroke:var(--skin-deep)" stroke-width="5" stroke-opacity=".12" stroke-linecap="round" filter="url(#bl)"/><path d="M33.55 -84 Q27.28 -52 17.18 -18" fill="none" stroke="#fff" stroke-width="1.6" stroke-opacity=".16" stroke-linecap="round" filter="url(#bl)"/><path d="M-24 -74 C-20 -56 -10 -46 -4 -32 C0 -22 4 -12 8 2" stroke="#6a85a8" fill="none" stroke-linecap="round" filter="url(#bl)" stroke-width="3.6" stroke-opacity=".13"/><path d="M8 -70 C6 -55 12 -44 16 -30 C18 -22 20 -12 22 0" stroke="#6a85a8" fill="none" stroke-linecap="round" filter="url(#bl)" stroke-width="2.6" stroke-opacity=".11"/><path d="M-4 -32 C4 -36 12 -38 16 -30" stroke="#6a85a8" fill="none" stroke-linecap="round" filter="url(#bl)" stroke-width="1.8" stroke-opacity=".09"/><path d="M8 2 C10 30 8 60 4 96" stroke="#6a85a8" fill="none" stroke-linecap="round" filter="url(#bl)" stroke-width="3" stroke-opacity=".08"/><ellipse cx="23" cy="14" rx="7" ry="6" fill="url(#knuckle)"/><path d="M17 18 Q24 24 30 16" fill="none" style="stroke:var(--skin-deep)" stroke-width="1.2" stroke-opacity=".25" stroke-linecap="round"/><path d="M-34 -62 Q-31 -36 -22 -6" fill="none" style="stroke:var(--skin-deep)" stroke-width="4" stroke-opacity=".16" stroke-linecap="round" filter="url(#bl)"/><path d="M-30 -58 Q-27 -34 -18 -4" fill="none" stroke="#fff" stroke-width="1.4" stroke-opacity=".2" stroke-linecap="round" filter="url(#bl)"/><g transform="translate(-30 -92) rotate(-5)"><ellipse cx="0" cy="-28.2" rx="6.2" ry="4" fill="url(#knuckle)"/><ellipse cx="0" cy="-51.3" rx="5" ry="4" fill="url(#knuckle)"/><path d="M-6.8 -28.2 Q0 -26.3 6.8 -28.2" fill="none" style="stroke:var(--skin-deep)" stroke-width="0.7" stroke-opacity="0.14" stroke-linecap="round"/><path d="M-6.8 -25.2 Q0 -23.3 6.8 -25.2" fill="none" style="stroke:var(--skin-deep)" stroke-width="0.9" stroke-opacity="0.26" stroke-linecap="round"/><path d="M-6.8 -22.2 Q0 -20.3 6.8 -22.2" fill="none" style="stroke:var(--skin-deep)" stroke-width="0.7" stroke-opacity="0.14" stroke-linecap="round"/><path d="M-5.6 -49.8 Q0 -48.5 5.6 -49.8" fill="none" style="stroke:var(--skin-deep)" stroke-width=".8" stroke-opacity="0.12" stroke-linecap="round"/><path d="M-5.6 -46.6 Q0 -45.3 5.6 -46.6" fill="none" style="stroke:var(--skin-deep)" stroke-width=".8" stroke-opacity="0.2" stroke-linecap="round"/><ellipse cx="0" cy="-25.2" rx="9.5" ry="6.5" fill="url(#blush)" opacity=".6"/><path d="M-4.02 -15.57l0.39 -2.74M-3.41 -17.37l0.89 -2.67M0.06 -7.63l-1.29 -2.25M1.02 -4.71l0.72 -2.26M-3.21 -4.24l1.58 -2.76M4.5 -14.28l-1.18 -2.23" fill="none" stroke="#8a6a48" stroke-width=".34" stroke-opacity=".24" stroke-linecap="round"/><path d="M-6.27 -48.6 Q0 -45.2 6.27 -48.6" fill="none" style="stroke:var(--skin-deep)" stroke-width="1.4" stroke-opacity=".22" stroke-linecap="round"/><path d="M-6.6 -49.4 C-6.9 -60.06 -5.9 -65.8 0 -65.8 C5.9 -65.8 6.9 -60.06 6.6 -49.4 Q0 -47 -6.6 -49.4 Z" fill="url(#nailG)" style="stroke:var(--skin-deep)" stroke-width=".6" stroke-opacity=".55"/><ellipse cx="0" cy="-51.3" rx="3.43" ry="2.5" fill="#fff" opacity=".4"/><path d="M-3.3 -55.96 L-0.53 -62.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".5"/><path d="M-5.28 -64.6 Q0 -66.7 5.28 -64.6" fill="none" stroke="#fff" stroke-width=".9" stroke-linecap="round" opacity=".55"/></g><g transform="translate(-9 -97) rotate(-1)"><ellipse cx="0" cy="-31.08" rx="6.51" ry="4" fill="url(#knuckle)"/><ellipse cx="0" cy="-56.82" rx="5.25" ry="4" fill="url(#knuckle)"/><path d="M-7.14 -31.08 Q0 -29.18 7.14 -31.08" fill="none" style="stroke:var(--skin-deep)" stroke-width="0.7" stroke-opacity="0.14" stroke-linecap="round"/><path d="M-7.14 -28.08 Q0 -26.18 7.14 -28.08" fill="none" style="stroke:var(--skin-deep)" stroke-width="0.9" stroke-opacity="0.26" stroke-linecap="round"/><path d="M-7.14 -25.08 Q0 -23.18 7.14 -25.08" fill="none" style="stroke:var(--skin-deep)" stroke-width="0.7" stroke-opacity="0.14" stroke-linecap="round"/><path d="M-5.88 -55.32 Q0 -54.02 5.88 -55.32" fill="none" style="stroke:var(--skin-deep)" stroke-width=".8" stroke-opacity="0.12" stroke-linecap="round"/><path d="M-5.88 -52.12 Q0 -50.82 5.88 -52.12" fill="none" style="stroke:var(--skin-deep)" stroke-width=".8" stroke-opacity="0.2" stroke-linecap="round"/><ellipse cx="0" cy="-28.08" rx="9.97" ry="6.5" fill="url(#blush)" opacity=".6"/><path d="M-0.03 -6.16l1.18 -2.3M-4.35 -19.84l-1.33 -3.22M-0.59 -14.66l-0.45 -2.74M-3.94 -4.62l0.89 -2.2M3.53 -7.97l1.62 -3.03M3.21 -18.77l0.27 -3.16" fill="none" stroke="#8a6a48" stroke-width=".34" stroke-opacity=".24" stroke-linecap="round"/><path d="M-6.58 -56.18 Q0 -52.78 6.58 -56.18" fill="none" style="stroke:var(--skin-deep)" stroke-width="1.4" stroke-opacity=".22" stroke-linecap="round"/><path d="M-6.93 -56.98 C-7.23 -67.91 -6.23 -73.8 0 -73.8 C6.23 -73.8 7.23 -67.91 6.93 -56.98 Q0 -54.58 -6.93 -56.98 Z" fill="url(#nailG)" style="stroke:var(--skin-deep)" stroke-width=".6" stroke-opacity=".55"/><ellipse cx="0" cy="-58.88" rx="3.6" ry="2.5" fill="#fff" opacity=".4"/><path d="M-3.47 -63.71 L-0.55 -70.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".5"/><path d="M-5.54 -72.6 Q0 -74.7 5.54 -72.6" fill="none" stroke="#fff" stroke-width=".9" stroke-linecap="round" opacity=".55"/></g><g transform="translate(12 -94) rotate(3)"><ellipse cx="0" cy="-28.92" rx="6.04" ry="4" fill="url(#knuckle)"/><ellipse cx="0" cy="-52.68" rx="4.88" ry="4" fill="url(#knuckle)"/><path d="M-6.63 -28.92 Q0 -27.02 6.63 -28.92" fill="none" style="stroke:var(--skin-deep)" stroke-width="0.7" stroke-opacity="0.14" stroke-linecap="round"/><path d="M-6.63 -25.92 Q0 -24.02 6.63 -25.92" fill="none" style="stroke:var(--skin-deep)" stroke-width="0.9" stroke-opacity="0.26" stroke-linecap="round"/><path d="M-6.63 -22.92 Q0 -21.02 6.63 -22.92" fill="none" style="stroke:var(--skin-deep)" stroke-width="0.7" stroke-opacity="0.14" stroke-linecap="round"/><path d="M-5.46 -51.18 Q0 -49.88 5.46 -51.18" fill="none" style="stroke:var(--skin-deep)" stroke-width=".8" stroke-opacity="0.12" stroke-linecap="round"/><path d="M-5.46 -47.98 Q0 -46.68 5.46 -47.98" fill="none" style="stroke:var(--skin-deep)" stroke-width=".8" stroke-opacity="0.2" stroke-linecap="round"/><ellipse cx="0" cy="-25.92" rx="9.26" ry="6.5" fill="url(#blush)" opacity=".6"/><path d="M-4.42 -12.17l0.78 -2.19M4.95 -19.58l-0.24 -2.57M-0.57 -10.54l1.3 -2.27M-5.54 -5.28l0.81 -3.5M-0.05 -12.45l0.17 -3.19M-3.25 -14.56l0.18 -2.99" fill="none" stroke="#8a6a48" stroke-width=".34" stroke-opacity=".24" stroke-linecap="round"/><path d="M-6.11 -50.81 Q0 -47.41 6.11 -50.81" fill="none" style="stroke:var(--skin-deep)" stroke-width="1.4" stroke-opacity=".22" stroke-linecap="round"/><path d="M-6.44 -51.61 C-6.74 -62.13 -5.74 -67.8 0 -67.8 C5.74 -67.8 6.74 -62.13 6.44 -51.61 Q0 -49.21 -6.44 -51.61 Z" fill="url(#nailG)" style="stroke:var(--skin-deep)" stroke-width=".6" stroke-opacity=".55"/><ellipse cx="0" cy="-53.51" rx="3.35" ry="2.5" fill="#fff" opacity=".4"/><path d="M-3.22 -58.09 L-0.51 -64.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".5"/><path d="M-5.15 -66.6 Q0 -68.7 5.15 -66.6" fill="none" stroke="#fff" stroke-width=".9" stroke-linecap="round" opacity=".55"/></g><g transform="translate(33 -86) rotate(9)"><ellipse cx="0" cy="-23.16" rx="5.12" ry="4" fill="url(#knuckle)"/><ellipse cx="0" cy="-41.64" rx="4.12" ry="4" fill="url(#knuckle)"/><path d="M-5.61 -23.16 Q0 -21.26 5.61 -23.16" fill="none" style="stroke:var(--skin-deep)" stroke-width="0.7" stroke-opacity="0.14" stroke-linecap="round"/><path d="M-5.61 -20.16 Q0 -18.26 5.61 -20.16" fill="none" style="stroke:var(--skin-deep)" stroke-width="0.9" stroke-opacity="0.26" stroke-linecap="round"/><path d="M-5.61 -17.16 Q0 -15.26 5.61 -17.16" fill="none" style="stroke:var(--skin-deep)" stroke-width="0.7" stroke-opacity="0.14" stroke-linecap="round"/><path d="M-4.62 -40.14 Q0 -38.84 4.62 -40.14" fill="none" style="stroke:var(--skin-deep)" stroke-width=".8" stroke-opacity="0.12" stroke-linecap="round"/><path d="M-4.62 -36.94 Q0 -35.64 4.62 -36.94" fill="none" style="stroke:var(--skin-deep)" stroke-width=".8" stroke-opacity="0.2" stroke-linecap="round"/><ellipse cx="0" cy="-20.16" rx="7.84" ry="6.5" fill="url(#blush)" opacity=".6"/><path d="M-3.16 -5.18l-0.55 -3.44M-1.52 -11.16l-0.44 -2.12M-4.3 -14.19l0.74 -2.49M1.82 -12.26l1.43 -3.23M-0.92 -16.65l1.37 -2.61M3.79 -9.67l-0.31 -2.38" fill="none" stroke="#8a6a48" stroke-width=".34" stroke-opacity=".24" stroke-linecap="round"/><path d="M-5.17 -36.07 Q0 -32.67 5.17 -36.07" fill="none" style="stroke:var(--skin-deep)" stroke-width="1.4" stroke-opacity=".22" stroke-linecap="round"/><path d="M-5.45 -36.87 C-5.75 -46.57 -4.75 -51.8 0 -51.8 C4.75 -51.8 5.75 -46.57 5.45 -36.87 Q0 -34.47 -5.45 -36.87 Z" fill="url(#nailG)" style="stroke:var(--skin-deep)" stroke-width=".6" stroke-opacity=".55"/><ellipse cx="0" cy="-38.77" rx="2.83" ry="2.5" fill="#fff" opacity=".4"/><path d="M-2.72 -42.84 L-0.44 -48.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".5"/><path d="M-4.36 -50.6 Q0 -52.7 4.36 -50.6" fill="none" stroke="#fff" stroke-width=".9" stroke-linecap="round" opacity=".55"/></g><g transform="translate(-33 -22) rotate(-33)"><ellipse cx="0" cy="-26.76" rx="7.36" ry="4" fill="url(#knuckle)"/><ellipse cx="0" cy="-48.54" rx="5.94" ry="4" fill="url(#knuckle)"/><path d="M-8.08 -26.76 Q0 -24.86 8.08 -26.76" fill="none" style="stroke:var(--skin-deep)" stroke-width="0.7" stroke-opacity="0.14" stroke-linecap="round"/><path d="M-8.08 -23.76 Q0 -21.86 8.08 -23.76" fill="none" style="stroke:var(--skin-deep)" stroke-width="0.9" stroke-opacity="0.26" stroke-linecap="round"/><path d="M-8.08 -20.76 Q0 -18.86 8.08 -20.76" fill="none" style="stroke:var(--skin-deep)" stroke-width="0.7" stroke-opacity="0.14" stroke-linecap="round"/><path d="M-6.65 -47.04 Q0 -45.74 6.65 -47.04" fill="none" style="stroke:var(--skin-deep)" stroke-width=".8" stroke-opacity="0.12" stroke-linecap="round"/><path d="M-6.65 -43.84 Q0 -42.54 6.65 -43.84" fill="none" style="stroke:var(--skin-deep)" stroke-width=".8" stroke-opacity="0.2" stroke-linecap="round"/><ellipse cx="0" cy="-23.76" rx="11.28" ry="6.5" fill="url(#blush)" opacity=".6"/><path d="M5.36 -5.98l-1.43 -2.96M3.9 -11.27l0.72 -1.96M-3.45 -8.08l-0.19 -2.26M-6.14 -8.88l1.45 -3.27M3.5 -11.2l-0.91 -3.42M0.37 -15.32l-1.11 -2.06" fill="none" stroke="#8a6a48" stroke-width=".34" stroke-opacity=".24" stroke-linecap="round"/><path d="M-7.61 -43.02 Q-1.8 -39.62 4.01 -43.02" fill="none" style="stroke:var(--skin-deep)" stroke-width="1.4" stroke-opacity=".22" stroke-linecap="round"/><path d="M-7.91 -43.82 C-8.21 -55.51 -7.21 -61.8 -1.8 -61.8 C3.61 -61.8 4.61 -55.51 4.31 -43.82 Q-1.8 -41.42 -7.91 -43.82 Z" fill="url(#nailG)" style="stroke:var(--skin-deep)" stroke-width=".6" stroke-opacity=".55"/><ellipse cx="-1.8" cy="-45.72" rx="3.18" ry="2.5" fill="#fff" opacity=".4"/><path d="M-4.86 -51.02 L-2.29 -58.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".5"/><path d="M-6.69 -60.6 Q-1.8 -62.7 3.09 -60.6" fill="none" stroke="#fff" stroke-width=".9" stroke-linecap="round" opacity=".55"/></g><path d="M21.97 -22.79l1.5 -2.55M-3.58 -40.35l1.17 -2.2M3.13 -65.37l0.74 -1.88M12.49 -9.77l-1.82 -2.32M9.92 -18.16l0.28 -2.39M-4.85 -9.39l1.19 -1.87M-24.12 -80.3l-1.67 -2.14M-21.27 -16.88l0.47 -2.15M3.4 -61.41l-0.02 -2.35M-19.7 -72.92l-0.53 -3.09M4.1 -84.21l0.99 -3.25M18 -23.16l-1.74 -2.12M-26.06 -25.36l-1.37 -2.82M-14.32 -30.87l-0.53 -2M-5.89 -62.63l1.31 -2.1M1.19 -42.95l1.26 -1.75M7.27 -46.33l1.14 -3.36M-10.77 -30.65l0.1 -2.9M-26.05 -21.2l1.59 -2.02M-10.28 -6.56l-1.11 -1.81M-25.45 -21.23l0.96 -2.54M8.53 -86.38l0.54 -2.65M2.08 -56.07l-0.32 -2.34M-26.97 -52.42l-1.08 -2.93M20.67 -28.65l-0.15 -2.37M-6.1 -48.08l0.65 -3.48M-24.7 -48.66l-0.04 -3.15M25.21 -24.08l0.57 -3.16M11.42 -17.57l0.85 -2.97M-14.79 -12.83l-0.47 -2.95M21.14 -8.98l1.27 -1.56M-10.62 -62.44l-0.34 -2.21M4.3 -81.48l-0.96 -3.38M16.03 -50.09l-1.84 -3.01M13.64 -71.12l-0.69 -2.95M12.26 -66.61l1.48 -2.03M-14.24 -18.68l-1.44 -2.74M-17.61 -38.97l-0.8 -2.48M28.33 -49.71l-0.26 -2.98M-12.6 -73.7l-0.39 -2.4M-19.32 94.47l-2.34 -3.07M26.95 71.41l-2.05 -2.58M-28.57 62.71l0.78 -2.72M-30.53 57l-1.59 -2.49M-2.85 88.5l-0.48 -2.6M18.09 82.01l0.1 -2.49M-19.37 44.27l0.2 -2.8M18.75 83.91l2.23 -3.31M-29.91 60.39l-2.22 -3.35M15.31 76.33l-1.06 -2.27M19.54 62.59l0.54 -3.2M18.61 38.42l-0.96 -2.88M-12.52 64.44l1.31 -2.16M-26.81 54.06l0.67 -2.66M-14.27 13.29l-1.98 -2.63M11.21 66.79l-1.19 -2.3M26.71 56.47l-0.46 -3.61M14.12 55.21l-2.16 -3.23M-17.75 11.64l-0.69 -3.29M7.95 23.67l0.95 -3.15M-20.96 84.59l1.67 -3.67M11.13 27.56l1.52 -3.73M2.06 89.76l1.89 -2.46M27.39 92.31l0.97 -2.22M-9.18 63.22l0.56 -3.72M9.11 22.53l1.9 -2.77M23.66 26.61l2.18 -2.61M17.09 74.6l1.55 -2.63M-25.87 44.5l-1.46 -3.04M19.53 40.6l-1.21 -2.13M-4.78 60.24l-2.21 -2.84M-17.93 17.63l1.88 -2.76M24.49 54.25l-1.42 -2.45M-4.7 65.68l1.39 -3.49M9.35 30.77l-0.3 -3.07M-0.65 31.89l0.17 -3.22M-28.8 82.06l0.46 -3.82M14.67 73.78l1.96 -2.38M-6.6 8.34l0.78 -3.36M4.74 97.79l-1.15 -2.56M14.52 81.11l-0.06 -2.5M-8.03 82.37l0 -3.23M-6.85 64.56l0.5 -3.61M22.65 75.62l-0.5 -2.81M17.48 79.36l1.55 -2.28M21.56 88.15l-1.64 -2.45M8.29 21.15l1.28 -2.57M11.31 34.62l-1.06 -2.56M-0.15 72.17l-1.4 -3.36M-10.22 66.43l-0.5 -2.7M-22.26 13.2l0.85 -3.03M-23.36 87.25l0.52 -2.38M13.93 61.52l-0.26 -3.29M28.66 41.65l0.67 -3.48M-8.32 39.17l1.24 -3.32M-2.67 54.24l-1.44 -3.54M-29.77 65.89l-0.18 -2.79M5.38 60.47l-1.79 -2.75M-20.77 79.92l-0.72 -2.9M-17.65 12.33l-1.13 -2.42" fill="none" stroke="#8a6a48" stroke-width=".36" stroke-opacity=".28" stroke-linecap="round"/><circle cx="7.45" cy="67.52" r="0.56" fill="#a9744f" opacity=".24"/><circle cx="-23.29" cy="11.2" r="0.51" fill="#a9744f" opacity=".24"/><circle cx="-5.69" cy="51.96" r="0.55" fill="#a9744f" opacity=".24"/><circle cx="11.98" cy="11.97" r="0.49" fill="#a9744f" opacity=".24"/><circle cx="-15.45" cy="22.89" r="0.5" fill="#a9744f" opacity=".24"/><circle cx="-17.78" cy="18.81" r="0.86" fill="#a9744f" opacity=".24"/><circle cx="1.23" cy="34.43" r="0.45" fill="#a9744f" opacity=".24"/><circle cx="-11.84" cy="-27.73" r="0.91" fill="#a9744f" opacity=".24"/><circle cx="-8.55" cy="56.27" r="0.47" fill="#a9744f" opacity=".24"/><circle cx="-0.09" cy="75.46" r="0.84" fill="#a9744f" opacity=".24"/><circle cx="4.78" cy="-52.21" r="0.91" fill="#a9744f" opacity=".24"/><circle cx="-25.21" cy="88.65" r="0.84" fill="#a9744f" opacity=".24"/><circle cx="13.18" cy="10.51" r="0.53" fill="#a9744f" opacity=".24"/><circle cx="-9.55" cy="34.51" r="0.78" fill="#a9744f" opacity=".24"/><circle cx="-6.64" cy="59.22" r="0.48" fill="#a9744f" opacity=".24"/><circle cx="-12.76" cy="-68.72" r="0.61" fill="#a9744f" opacity=".24"/><rect x="-40" y="94" width="80" height="16" rx="8" fill="#3a2a1c" opacity=".24" filter="url(#bsoft)"/><rect x="-58" y="150" width="116" height="110" rx="10" fill="url(#cloth)"/><rect x="-58" y="150" width="116" height="110" rx="10" fill="url(#rollSide)"/><path d="M-44 168 Q-20 176 -4 170 M12 188 Q28 196 48 188 M-38 210 Q-12 218 8 212" stroke="#c9c3b2" stroke-width="1.3" stroke-linecap="round" fill="none"/><path d="M-48 160 Q-22 166 -2 162" stroke="#fff" stroke-width="1.6" stroke-linecap="round" fill="none" opacity=".8"/><rect x="-48" y="138" width="96" height="14" rx="7" fill="#3a2a1c" opacity=".22" filter="url(#bsoft)"/><rect x="-52" y="126" width="104" height="36" rx="17" fill="url(#cloth2)"/><rect x="-52" y="126" width="104" height="36" rx="17" fill="url(#rollShade)"/><rect x="-52" y="126" width="104" height="36" rx="17" fill="url(#rollSide)"/><path d="M-42 152 Q0 160 42 152" stroke="#bfb8a5" stroke-width="1" stroke-dasharray="2 2.4" stroke-linecap="round" fill="none"/><rect x="-46" y="104" width="92" height="34" rx="16" fill="url(#cloth)"/><rect x="-46" y="104" width="92" height="34" rx="16" fill="url(#rollShade)"/><rect x="-46" y="104" width="92" height="34" rx="16" fill="url(#rollSide)"/><path d="M-38 128 Q0 136 38 128" stroke="#bdb6a3" stroke-width="1.4" stroke-linecap="round" fill="none"/><path d="M-40 112 Q0 107 40 112" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none" opacity=".85"/><path d="M-32 118 Q-14 122 -4 118 M12 120 Q28 124 36 118" stroke="#d0cabb" stroke-width="1.1" stroke-linecap="round" fill="none"/><path d="M-40 132 Q0 140 40 132" stroke="#bfb8a5" stroke-width="1" stroke-dasharray="2 2.4" stroke-linecap="round" fill="none"/></g></defs><g transform="translate(104 142) rotate(7) scale(.82)"><g class="gest" id="gL"><g transform="scale(-1 1)"><use href="#handShape"/></g><g id="watch">
+<path d="M-27 4 L27 4 L32 100 L-32 100 Z" fill="#06120d" opacity=".45" transform="translate(3 4)" filter="url(#bsoft)"/>
+<path d="M-27 4 L27 4 L32 100 L-32 100 Z" fill="url(#steelH)" stroke="#5a616b" stroke-width=".8"/>
+<path d="M-27 10 Q0 13 27 10 M-29 76 Q0 80 29 76 M-30 85 Q0 89 30 85 M-31 94 Q0 98 31 94" stroke="#59606a" stroke-width=".9" fill="none"/>
+<rect x="-4" y="4" width="8" height="96" fill="#fff" opacity=".22"/>
+<g transform="translate(0 42)">
+<rect x="25" y="-5" width="6.5" height="10" rx="2" fill="url(#steel)" stroke="#6b727c" stroke-width=".6"/>
+<polygon points="10.7,-25.9 25.9,-10.7 25.9,10.7 10.7,25.9 -10.7,25.9 -25.9,10.7 -25.9,-10.7 -10.7,-25.9" fill="url(#steel)" stroke="#5a616b" stroke-width=".9"/>
+<polygon points="8.6,-20.8 20.8,-8.6 20.8,8.6 8.6,20.8 -8.6,20.8 -20.8,8.6 -20.8,-8.6 -8.6,-20.8" fill="#aab1bb" stroke="#5a616b" stroke-width=".7"/>
+<g fill="#e8ebef" stroke="#4c535c" stroke-width=".5">
+<circle cx="23.4" cy="0" r="1.9"/><circle cx="16.5" cy="16.5" r="1.9"/><circle cx="0" cy="23.4" r="1.9"/><circle cx="-16.5" cy="16.5" r="1.9"/>
+<circle cx="-23.4" cy="0" r="1.9"/><circle cx="-16.5" cy="-16.5" r="1.9"/><circle cx="0" cy="-23.4" r="1.9"/><circle cx="16.5" cy="-16.5" r="1.9"/>
+</g>
+<polygon points="8,-19.4 19.4,-8 19.4,8 8,19.4 -8,19.4 -19.4,8 -19.4,-8 -8,-19.4" fill="url(#tap)" stroke="#0b2243" stroke-width=".6"/>
+<g fill="#efe9d6"><rect x="-1" y="-18" width="2" height="5" rx=".6" transform="rotate(0)"/><rect x="-1" y="-18" width="2" height="5" rx=".6" transform="rotate(30)"/><rect x="-1" y="-18" width="2" height="5" rx=".6" transform="rotate(60)"/><rect x="-1" y="-18" width="2" height="5" rx=".6" transform="rotate(90)"/><rect x="-1" y="-18" width="2" height="5" rx=".6" transform="rotate(120)"/><rect x="-1" y="-18" width="2" height="5" rx=".6" transform="rotate(150)"/><rect x="-1" y="-18" width="2" height="5" rx=".6" transform="rotate(180)"/><rect x="-1" y="-18" width="2" height="5" rx=".6" transform="rotate(210)"/><rect x="-1" y="-18" width="2" height="5" rx=".6" transform="rotate(240)"/><rect x="-1" y="-18" width="2" height="5" rx=".6" transform="rotate(270)"/><rect x="-1" y="-18" width="2" height="5" rx=".6" transform="rotate(300)"/><rect x="-1" y="-18" width="2" height="5" rx=".6" transform="rotate(330)"/></g>
+<text x="0" y="-8" text-anchor="middle" font-size="4.6" font-weight="700" fill="#efe9d6" style="font-family:var(--font-body);letter-spacing:.4px">AP</text>
+<path d="M0 0 L-7.8 -4.5" stroke="#efe9d6" stroke-width="2.6" stroke-linecap="round"/>
+<path d="M0 0 L12.1 -7" stroke="#efe9d6" stroke-width="1.8" stroke-linecap="round"/>
+<circle cx="0" cy="0" r="1.9" fill="#efe9d6"/>
+<polygon points="8,-19.4 19.4,-8 19.4,8 8,19.4 -8,19.4 -19.4,8 -19.4,-8 -8,-19.4" fill="url(#glass)"/>
+</g>
+</g></g></g><g transform="translate(316 142) rotate(-7) scale(.82)"><g class="gest" id="gR"><use href="#handShape"/></g></g></svg>
+      </div>
+    </section>
+
+    <section class="tray" aria-label="Mises et actions">
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+
+      <div class="panels">
+        <div class="panel" id="betPanel">
+          <div class="chips" id="chips"></div>
+          <div class="bet-row">
+            <div class="bet-read"><span class="eyebrow">Mise</span><strong id="betAmt">0</strong></div>
+            <div class="custom">
+              <input class="field" id="betInput" type="text" inputmode="numeric" autocomplete="off" placeholder="Autre montant" aria-label="Montant personnalisé de la mise">
+              <button class="btn small" type="button" id="customBtn" data-act="custom">Miser</button>
+            </div>
+          </div>
+          <div class="deal-row">
+            <div class="left">
+              <button class="btn ghost" type="button" id="clearBtn" data-act="clear">Effacer</button>
+              <button class="btn ghost" type="button" id="sameBtn" data-act="same">Même mise</button>
+              <button class="btn ghost" type="button" id="allBtn" data-act="allin">Tapis</button>
+            </div>
+            <button class="btn primary" type="button" id="dealBtn" data-act="deal">Distribuer <kbd>↵</kbd></button>
+          </div>
+        </div>
+
+        <div class="panel off" id="actPanel">
+          <div class="act-grid">
+            <button class="btn" type="button" id="hitBtn" data-act="hit">Tirer <kbd>H</kbd></button>
+            <button class="btn" type="button" id="standBtn" data-act="stand">Rester <kbd>S</kbd></button>
+            <button class="btn" type="button" id="doubleBtn" data-act="double">Doubler <kbd>D</kbd></button>
+            <button class="btn" type="button" id="splitBtn" data-act="split">Séparer <kbd>P</kbd></button>
+          </div>
+          <div><button class="btn ghost" type="button" id="hintBtn" data-act="hint">Conseil de stratégie</button></div>
+        </div>
+
+        <div class="panel broke" id="brokePanel" hidden>
+          <p>Vous n'avez plus de jetons. Le salon vous en rend pour repartir.</p>
+          <button class="btn primary" type="button" id="recaveBtn" data-act="recave">Reprendre 10 000 jetons</button>
+        </div>
+      </div>
+
+      <div class="shoe-meter" title="Le trait rouge marque la carte de coupe : le sabot est rebattu une fois dépassée.">
+        <span>Sabot</span>
+        <div class="bar"><i id="shoeFill"></i><b></b></div>
+        <output id="shoeCount">312</output>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="stats">
+      <div class="stat"><strong id="stPlayed">0</strong><span>Mains</span></div>
+      <div class="stat"><strong id="stWon">0</strong><span>Gagnées</span></div>
+      <div class="stat"><strong id="stPush">0</strong><span>Égalités</span></div>
+      <div class="stat"><strong id="stBj">0</strong><span>Blackjacks</span></div>
+      <div class="stat"><strong id="stBest">10 000</strong><span>Record</span></div>
+    </div>
+    <p class="rules">6 jeux · blackjack payé 3 pour 2 · le croupier reste sur tous les 17 · doublez sur vos deux premières cartes · séparez jusqu'à 4 mains · un seul tirage sur les as séparés · pas d'assurance</p>
+    <div class="foot-row">
+      <div class="setup">
+        <label for="startInput">Jetons de départ</label>
+        <input class="field" id="startInput" type="text" inputmode="numeric" autocomplete="off" aria-label="Montant de jetons de départ">
+        <button class="btn ghost" type="button" id="resetBtn" data-act="reset">Réinitialiser la partie</button>
+      </div>
+      <div class="skins" id="skins"><span>Teint de mes mains</span></div>
+    </div>
+  </footer>
+
+</div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const $ = s => document.querySelector(s);
+  const SUITS = ['♠', '♥', '♦', '♣'];
+  const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+  const DECKS = 6, CUT = 78, MAX_HANDS = 4, DEFAULT_START = 10000, MIN_BET = 1, MAX_MONEY = 1000000000;
+  const CHIPS = [10, 50, 100, 500, 1000, 5000, 10000];
+  const SKINS = ['#f7e1d0', '#e2b48a', '#c88e5e', '#9b6540', '#6a4128'];
+  const fmt = n => Number(n).toLocaleString('fr-FR');
+  const sgn = n => (n > 0 ? '+' : n < 0 ? '−' : '') + fmt(Math.abs(n));
+  const digits = v => parseInt(String(v).replace(/\D/g, ''), 10);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const wait = ms => new Promise(r => setTimeout(r, reduce ? Math.min(ms, 40) : ms));
+
+  /* ---------- storage ---------- */
+  const KEY = 'salon21.v1';
+  function load() {
+    try { const j = JSON.parse(localStorage.getItem(KEY)); if (j && typeof j.bankroll === 'number') return j; } catch (e) {}
+    return null;
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify({ bankroll: S.bankroll, stats: S.stats, lastBet: S.lastBet, start: S.start, skin: S.skin, skinV: 2 })); } catch (e) {}
+  }
+
+  /* ---------- state ---------- */
+  const saved = load();
+  const S = {
+    start: (saved && saved.start) || DEFAULT_START,
+    bankroll: saved ? saved.bankroll : DEFAULT_START,
+    bet: 0,
+    lastBet: (saved && saved.lastBet) || 100,
+    skin: (saved && saved.skinV === 2 && typeof saved.skin === 'number') ? saved.skin : 0,
+    phase: 'bet',           // bet | dealing | player | dealer | result
+    busy: false,
+    shoe: [], dealer: [], hands: [], active: 0,
+    holeHidden: false, resultText: '', hint: '', notice: '', betMsg: '',
+    stats: Object.assign({ played: 0, won: 0, push: 0, lost: 0, bj: 0, best: DEFAULT_START }, (saved && saved.stats) || {})
+  };
+  S.stats.best = Math.max(S.stats.best, S.bankroll);
+  const maxBet = () => S.bankroll;
+
+  /* ---------- cards ---------- */
+  function buildShoe() {
+    const s = [];
+    for (let d = 0; d < DECKS; d++) for (const su of SUITS) for (const r of RANKS) s.push({ r, s: su });
+    for (let i = s.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [s[i], s[j]] = [s[j], s[i]];
+    }
+    return s;
+  }
+  const val = r => r === 'A' ? 11 : ('JQK'.includes(r) ? 10 : parseInt(r, 10));
+  function score(cards) {
+    let t = 0, aces = 0;
+    for (const c of cards) { t += val(c.r); if (c.r === 'A') aces++; }
+    while (t > 21 && aces) { t -= 10; aces--; }
+    return { t, soft: aces > 0 };
+  }
+  const isBJ = cards => cards.length === 2 && score(cards).t === 21;
+  function draw() {
+    if (!S.shoe.length) S.shoe = buildShoe();
+    return S.shoe.pop();
+  }
+  function scoreText(cards, split) {
+    const { t, soft } = score(cards);
+    if (cards.length === 2 && t === 21 && !split) return 'BJ';
+    if (soft && t < 21) return (t - 10) + ' / ' + t;
+    return String(t);
+  }
+  const chipTier = n => n >= 10000 ? 'c10000' : n >= 5000 ? 'c5000' : n >= 1000 ? 'c1000' : n >= 500 ? 'c500' : n >= 100 ? 'c100' : n >= 50 ? 'c50' : 'c10';
+  const chipLabel = v => v >= 1000 ? (v / 1000) + 'K' : String(v);
+
+  /* ---------- sound (soft: every sound fades in and out, low-passed) ---------- */
+  let ac = null, master = null, soundOn = true;
+  function audio() {
+    if (!soundOn) return null;
+    try {
+      if (!ac) {
+        ac = new (window.AudioContext || window.webkitAudioContext)();
+        master = ac.createGain(); master.gain.value = 0.5;
+        const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3800; lp.Q.value = 0.3;
+        master.connect(lp); lp.connect(ac.destination);
+      }
+      if (ac.state === 'suspended') ac.resume().catch(() => {});
+    } catch (e) { ac = null; }
+    return ac;
+  }
+  function swish(dur, freq, gain) {
+    const a = audio(); if (!a) return;
+    try {
+      const n = Math.floor(a.sampleRate * dur), buf = a.createBuffer(1, n, a.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < n; i++) { const w = Math.sin(Math.PI * i / n); d[i] = (Math.random() * 2 - 1) * w * w; }
+      const src = a.createBufferSource(); src.buffer = buf;
+      const f = a.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = 0.6;
+      const g = a.createGain(); g.gain.value = gain;
+      src.connect(f); f.connect(g); g.connect(master); src.start();
+    } catch (e) {}
+  }
+  function tone(freq, dur, gain, delay) {
+    const a = audio(); if (!a) return;
+    try {
+      const t0 = a.currentTime + (delay || 0);
+      const o = a.createOscillator(), g = a.createGain();
+      o.type = 'sine'; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.linearRampToValueAtTime(gain, t0 + Math.min(0.04, dur * 0.3));
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g); g.connect(master); o.start(t0); o.stop(t0 + dur + 0.03);
+    } catch (e) {}
+  }
+  const sfx = {
+    card: () => swish(0.18, 1700, 0.32),
+    chip: () => { tone(700, 0.16, 0.035); tone(1050, 0.14, 0.02, 0.02); swish(0.09, 2600, 0.1); },
+    win: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.7, 0.05, i * 0.12)),
+    lose: () => { tone(330, 0.6, 0.045); tone(262, 0.8, 0.045, 0.18); }
+  };
+
+  /* ---------- gestures ---------- */
+  let gt = 0, dt = 0;
+  function gesture(name, ms) {
+    const el = $('#myhands');
+    el.classList.remove('hit', 'stand', 'dbl');
+    void el.getBoundingClientRect();
+    el.classList.add(name);
+    clearTimeout(gt);
+    gt = setTimeout(() => el.classList.remove(name), ms || 800);
+  }
+  function dealerGesture() {
+    const el = $('#croupier');
+    el.classList.remove('flick');
+    void el.getBoundingClientRect();
+    el.classList.add('flick');
+    clearTimeout(dt);
+    dt = setTimeout(() => el.classList.remove('flick'), 600);
+  }
+
+  /* ---------- DOM builders ---------- */
+  const ghosts = '<div class="ghost"></div><div class="ghost"></div>';
+  function cardEl(card, down) {
+    const red = card.s === '♥' || card.s === '♦';
+    const court = 'JQK'.includes(card.r);
+    const el = document.createElement('div');
+    el.className = 'card deal' + (down ? ' down' : '');
+    el.style.setProperty('--rot', (Math.random() * 3 - 1.5).toFixed(2) + 'deg');
+    el.innerHTML =
+      '<div class="inner">' +
+        '<div class="face' + (red ? ' red' : '') + '">' +
+          '<span class="corner tl"><b>' + card.r + '</b><i>' + card.s + '</i></span>' +
+          '<span class="pip' + (court ? ' court' : '') + '">' + (court ? card.r : card.s) + '</span>' +
+          '<span class="corner br"><b>' + card.r + '</b><i>' + card.s + '</i></span>' +
+        '</div>' +
+        '<div class="back"></div>' +
+      '</div>';
+    el.addEventListener('animationend', () => el.classList.remove('deal'), { once: true });
+    return el;
+  }
+  function makeHandEl() {
+    const el = document.createElement('div');
+    el.className = 'hand';
+    el.innerHTML = '<div class="cards"></div><div class="meta"><span class="score" hidden></span><span class="bet"></span><span class="tag" hidden></span></div>';
+    return el;
+  }
+  function newHand(bet) {
+    return { cards: [], bet, done: false, doubled: false, split: false, res: null, delta: 0, el: null };
+  }
+  function mountHand(h) {
+    h.el = makeHandEl();
+    $('#hands').appendChild(h.el);
+    updateHand(h);
+    setMany();
+  }
+  function setMany() { $('#hands').classList.toggle('many', S.hands.length > 2); }
+  function setTag(h, text, cls) {
+    const t = h.el.querySelector('.tag');
+    t.textContent = text; t.className = 'tag ' + cls; t.hidden = false;
+  }
+  function updateHand(h) {
+    const { t } = score(h.cards);
+    const sc = h.el.querySelector('.score');
+    sc.hidden = h.cards.length === 0;
+    sc.textContent = scoreText(h.cards, h.split);
+    sc.classList.toggle('bust', t > 21);
+    sc.classList.toggle('bj', h.cards.length === 2 && t === 21 && !h.split);
+    h.el.querySelector('.bet').innerHTML = '<i class="dot ' + chipTier(h.bet) + '"></i>' + fmt(h.bet);
+    if (t > 21 && !h.res) setTag(h, 'Brûlé', 'lose');
+  }
+  function updateDealer() {
+    const el = $('#dealerScore');
+    if (!S.dealer.length) { el.hidden = true; return; }
+    el.hidden = false;
+    if (S.holeHidden && S.dealer.length >= 2) {
+      const u = S.dealer[0];
+      el.textContent = (u.r === 'A' ? 'A' : val(u.r)) + ' + ?';
+      el.className = 'score';
+      return;
+    }
+    const { t } = score(S.dealer);
+    el.textContent = scoreText(S.dealer, false);
+    el.className = 'score' + (t > 21 ? ' bust' : '') + (isBJ(S.dealer) ? ' bj' : '');
+  }
+  function showIdle() {
+    $('#dealerCards').innerHTML = ghosts;
+    $('#dealerScore').hidden = true;
+    const hs = $('#hands'); hs.innerHTML = ''; hs.classList.remove('many');
+    const el = makeHandEl(); el.classList.add('idle');
+    el.querySelector('.cards').innerHTML = ghosts;
+    hs.appendChild(el);
+  }
+  function clearTable() {
+    $('#dealerCards').innerHTML = '';
+    $('#hands').innerHTML = '';
+    $('#dealerScore').hidden = true;
+  }
+  function renderIdleBet() {
+    const idle = $('#hands .hand.idle');
+    if (!idle) return;
+    idle.querySelector('.bet').innerHTML = S.bet > 0 ? '<i class="dot ' + chipTier(S.bet) + '"></i>' + fmt(S.bet) : '';
+  }
+  function showStamp(kind, title, sub) {
+    const s = $('#stamp');
+    s.className = 'stamp ' + kind;
+    s.querySelector('b').textContent = title;
+    s.querySelector('small').textContent = sub;
+    void s.offsetWidth;
+    s.classList.add('show');
+    $('#felt').classList.add('has-stamp');
+  }
+  function hideStamp() {
+    $('#stamp').classList.remove('show');
+    $('#felt').classList.remove('has-stamp');
+  }
+
+  /* ---------- bankroll display ---------- */
+  let shown = S.bankroll, tween = 0;
+  function setBank(target, animate) {
+    const el = $('#bank');
+    cancelAnimationFrame(tween);
+    if (!animate || reduce) { shown = target; el.textContent = fmt(target); return; }
+    const from = shown, t0 = performance.now(), dur = 700;
+    const step = now => {
+      const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      shown = Math.round(from + (target - from) * e);
+      el.textContent = fmt(shown);
+      if (k < 1) tween = requestAnimationFrame(step);
+    };
+    tween = requestAnimationFrame(step);
+  }
+
+  /* ---------- rules helpers ---------- */
+  const canDouble = h => h.cards.length === 2 && S.bankroll >= h.bet;
+  const canSplit = h => h.cards.length === 2 && val(h.cards[0].r) === val(h.cards[1].r) && S.hands.length < MAX_HANDS && S.bankroll >= h.bet;
+
+  function advice(h) {
+    const up = val(S.dealer[0].r);
+    const { t, soft } = score(h.cards);
+    const dbl = fb => canDouble(h) ? 'D' : fb;
+    if (canSplit(h)) {
+      const v = val(h.cards[0].r);
+      if (v === 11 || v === 8) return 'P';
+      if (v === 10) return 'S';
+      if (v === 9) return [7, 10, 11].includes(up) ? 'S' : 'P';
+      if (v === 7) return up <= 7 ? 'P' : 'H';
+      if (v === 6) return up <= 6 ? 'P' : 'H';
+      if (v === 4) return (up === 5 || up === 6) ? 'P' : 'H';
+      if (v === 3 || v === 2) return up <= 7 ? 'P' : 'H';
+    }
+    if (soft && t <= 21) {
+      if (t >= 19) return 'S';
+      if (t === 18) { if (up >= 3 && up <= 6) return dbl('S'); return up <= 8 ? 'S' : 'H'; }
+      if (t === 17) return (up >= 3 && up <= 6) ? dbl('H') : 'H';
+      if (t >= 15) return (up >= 4 && up <= 6) ? dbl('H') : 'H';
+      return (up === 5 || up === 6) ? dbl('H') : 'H';
+    }
+    if (t >= 17) return 'S';
+    if (t >= 13) return up <= 6 ? 'S' : 'H';
+    if (t === 12) return (up >= 4 && up <= 6) ? 'S' : 'H';
+    if (t === 11) return up <= 10 ? dbl('H') : 'H';
+    if (t === 10) return up <= 9 ? dbl('H') : 'H';
+    if (t === 9) return (up >= 3 && up <= 6) ? dbl('H') : 'H';
+    return 'H';
+  }
+  const ADVICE_LABEL = { H: 'tirer', S: 'rester', D: 'doubler', P: 'séparer' };
+
+  /* ---------- dealing ---------- */
+  async function dealPlayer(h) {
+    const c = draw();
+    dealerGesture();
+    h.cards.push(c);
+    h.el.querySelector('.cards').appendChild(cardEl(c, false));
+    sfx.card(); updateHand(h); renderShoe();
+    await wait(320);
+  }
+  async function dealDealer(hole) {
+    const c = draw();
+    dealerGesture();
+    S.dealer.push(c);
+    $('#dealerCards').appendChild(cardEl(c, hole));
+    sfx.card(); updateDealer(); renderShoe();
+    await wait(320);
+  }
+  async function revealHole() {
+    const hole = $('#dealerCards').children[1];
+    dealerGesture();
+    if (hole) hole.classList.remove('down');
+    S.holeHidden = false;
+    sfx.card(); updateDealer(); renderAll();
+    await wait(650);
+  }
+
+  /* ---------- round flow ---------- */
+  async function deal() {
+    if (S.busy || !(S.phase === 'bet' || S.phase === 'result')) return;
+    if (S.bet < MIN_BET || S.bet > S.bankroll) return;
+    S.busy = true; S.phase = 'dealing'; S.hint = ''; S.betMsg = '';
+    const bet = S.bet;
+    S.lastBet = bet; S.bankroll -= bet; S.bet = 0;
+    setBank(S.bankroll, true); sfx.chip(); save();
+    S.notice = '';
+    if (S.shoe.length < CUT) { S.shoe = buildShoe(); S.notice = 'Sabot rebattu. '; }
+    clearTable(); hideStamp();
+    const h = newHand(bet);
+    S.hands = [h]; S.dealer = []; S.holeHidden = true; S.active = 0;
+    mountHand(h);
+    renderAll();
+    await wait(250);
+    await dealPlayer(h);
+    await dealDealer(false);
+    await dealPlayer(h);
+    await dealDealer(true);
+    if (isBJ(S.dealer) || isBJ(h.cards)) {
+      await wait(350); await revealHole(); await wait(250);
+      return settle();
+    }
+    S.phase = 'player'; S.busy = false;
+    renderAll();
+  }
+
+  const playerTurn = () => S.phase === 'player' && !S.busy;
+
+  async function afterAction() {
+    const h = S.hands[S.active];
+    if (score(h.cards).t >= 21) h.done = true;
+    if (h.done) { await wait(350); return nextHand(); }
+    S.busy = false; renderAll();
+  }
+  async function nextHand() {
+    for (;;) {
+      const idx = S.hands.findIndex(h => !h.done);
+      if (idx < 0) return dealerTurn();
+      S.active = idx;
+      const h = S.hands[idx];
+      if (score(h.cards).t >= 21) { h.done = true; continue; }
+      S.busy = false; renderAll(); return;
+    }
+  }
+  async function hit() {
+    if (!playerTurn()) return;
+    S.busy = true; S.hint = '';
+    gesture('hit', 600);
+    await wait(250);
+    await dealPlayer(S.hands[S.active]);
+    await afterAction();
+  }
+  async function stand() {
+    if (!playerTurn()) return;
+    S.busy = true; S.hint = '';
+    gesture('stand', 850);
+    S.hands[S.active].done = true;
+    renderAll();
+    await wait(500);
+    await nextHand();
+  }
+  async function doubleDown() {
+    if (!playerTurn()) return;
+    const h = S.hands[S.active];
+    if (!canDouble(h)) return;
+    S.busy = true; S.hint = '';
+    gesture('dbl', 650);
+    S.bankroll -= h.bet; h.bet *= 2; h.doubled = true;
+    setBank(S.bankroll, true); sfx.chip(); save();
+    updateHand(h);
+    await wait(300);
+    await dealPlayer(h);
+    h.done = true;
+    await wait(450);
+    await nextHand();
+  }
+  async function splitHand() {
+    if (!playerTurn()) return;
+    const h = S.hands[S.active];
+    if (!canSplit(h)) return;
+    S.busy = true; S.hint = '';
+    gesture('dbl', 650);
+    S.bankroll -= h.bet; setBank(S.bankroll, true); sfx.chip(); save();
+    const moved = h.cards.pop();
+    const aces = moved.r === 'A';
+    const nh = newHand(h.bet);
+    nh.split = true; h.split = true; nh.cards.push(moved);
+    S.hands.splice(S.hands.indexOf(h) + 1, 0, nh);
+    const movedEl = h.el.querySelector('.cards').lastElementChild;
+    nh.el = makeHandEl();
+    h.el.after(nh.el);
+    nh.el.querySelector('.cards').appendChild(movedEl);
+    updateHand(h); updateHand(nh); setMany(); renderAll();
+    await wait(300);
+    await dealPlayer(h);
+    await dealPlayer(nh);
+    await wait(250);
+    if (aces) { h.done = true; nh.done = true; return nextHand(); }
+    return afterAction();
+  }
+  function showHint() {
+    if (!playerTurn()) return;
+    const a = advice(S.hands[S.active]);
+    S.hint = 'Stratégie de base : ' + ADVICE_LABEL[a] + '.';
+    renderAll();
+  }
+
+  async function dealerTurn() {
+    S.phase = 'dealer'; S.busy = true; S.hint = '';
+    renderAll();
+    await wait(250);
+    await revealHole();
+    if (S.hands.some(h => score(h.cards).t <= 21)) {
+      while (score(S.dealer).t < 17) { await wait(450); await dealDealer(false); }
+    }
+    await wait(300);
+    return settle();
+  }
+
+  async function settle() {
+    const d = score(S.dealer).t, dbj = isBJ(S.dealer);
+    let net = 0, anyBJ = false;
+    for (const h of S.hands) {
+      const p = score(h.cards).t, pbj = isBJ(h.cards) && !h.split;
+      let res, delta;
+      if (p > 21) { res = 'bust'; delta = -h.bet; }
+      else if (pbj) { if (dbj) { res = 'push'; delta = 0; } else { res = 'bj'; delta = Math.floor(h.bet * 1.5); anyBJ = true; } }
+      else if (dbj) { res = 'lose'; delta = -h.bet; }
+      else if (d > 21 || p > d) { res = 'win'; delta = h.bet; }
+      else if (p < d) { res = 'lose'; delta = -h.bet; }
+      else { res = 'push'; delta = 0; }
+      h.res = res; h.delta = delta; net += delta;
+      S.bankroll += h.bet + delta;
+      S.stats.played++;
+      if (res === 'win' || res === 'bj') S.stats.won++; else if (res === 'push') S.stats.push++; else S.stats.lost++;
+      if (res === 'bj') S.stats.bj++;
+      if (res === 'bj') setTag(h, 'Blackjack ' + sgn(delta), 'win');
+      else if (res === 'win') setTag(h, 'Gagné ' + sgn(delta), 'win');
+      else if (res === 'push') setTag(h, 'Égalité', 'push');
+      else if (res === 'bust') setTag(h, 'Brûlé ' + sgn(delta), 'lose');
+      else setTag(h, 'Perdu ' + sgn(delta), 'lose');
+    }
+    S.stats.best = Math.max(S.stats.best, S.bankroll);
+
+    if (S.hands.length === 1) {
+      const h = S.hands[0];
+      if (h.res === 'bj') S.resultText = 'Blackjack ! Vous gagnez ' + fmt(h.delta) + '.';
+      else if (h.res === 'win') S.resultText = (d > 21 ? 'Le croupier dépasse 21. ' : '') + 'Vous gagnez ' + fmt(h.delta) + '.';
+      else if (h.res === 'push') S.resultText = 'Égalité, votre mise vous est rendue.';
+      else if (h.res === 'bust') S.resultText = 'Vous dépassez 21. Vous perdez ' + fmt(-h.delta) + '.';
+      else S.resultText = (dbj ? 'Blackjack du croupier. ' : 'Le croupier l\'emporte. ') + 'Vous perdez ' + fmt(-h.delta) + '.';
+    } else {
+      S.resultText = net > 0 ? 'Bilan : vous gagnez ' + fmt(net) + '.' : net < 0 ? 'Bilan : vous perdez ' + fmt(-net) + '.' : 'Bilan : égalité.';
+    }
+
+    if (anyBJ) showStamp('win', 'Blackjack', sgn(net) + ' jetons');
+    else if (net > 0) showStamp('win', 'Gagné', sgn(net) + ' jetons');
+    else if (net < 0) showStamp('lose', 'Perdu', sgn(net) + ' jetons');
+    else showStamp('push', 'Égalité', 'mise rendue');
+    if (net > 0) sfx.win(); else if (net < 0) sfx.lose();
+
+    S.phase = 'result'; S.busy = false;
+    S.bet = Math.min(S.lastBet, maxBet());
+    setBank(S.bankroll, true);
+    save(); renderAll();
+  }
+
+  /* ---------- bets ---------- */
+  const canBet = () => (S.phase === 'bet' || S.phase === 'result') && !S.busy;
+  function addBet(v) {
+    if (!canBet() || S.bet + v > S.bankroll) return;
+    S.bet += v; S.betMsg = ''; sfx.chip(); renderAll();
+  }
+  function clearBet() { if (!canBet()) return; S.bet = 0; S.betMsg = ''; renderAll(); }
+  function sameBet() { if (!canBet()) return; S.bet = Math.min(S.lastBet, maxBet()); S.betMsg = ''; sfx.chip(); renderAll(); }
+  function allIn() { if (!canBet() || S.bankroll < MIN_BET) return; S.bet = S.bankroll; S.betMsg = ''; sfx.chip(); renderAll(); }
+  function customBet() {
+    if (!canBet()) return;
+    const inp = $('#betInput');
+    const n = digits(inp.value);
+    if (!n || n < MIN_BET) { S.betMsg = 'Entrez un montant entre ' + MIN_BET + ' et ' + fmt(S.bankroll) + '.'; renderAll(); return; }
+    S.bet = Math.min(n, S.bankroll);
+    S.betMsg = n > S.bankroll ? 'Montant limité à vos ' + fmt(S.bankroll) + ' jetons.' : '';
+    inp.value = '';
+    sfx.chip(); renderAll();
+  }
+
+  function resetTable(newBankroll) {
+    S.bankroll = newBankroll; S.phase = 'bet'; S.busy = false;
+    S.hands = []; S.dealer = []; S.hint = ''; S.notice = ''; S.betMsg = '';
+    S.bet = Math.min(100, S.bankroll);
+    S.lastBet = Math.max(1, S.bet);
+    hideStamp(); showIdle(); setBank(S.bankroll, true); save(); renderAll();
+  }
+  let resetArm = 0;
+  function resetAll() {
+    const b = $('#resetBtn');
+    if (!resetArm) {
+      b.textContent = 'Confirmer ?';
+      resetArm = setTimeout(() => { resetArm = 0; b.textContent = 'Réinitialiser la partie'; }, 3000);
+      return;
+    }
+    clearTimeout(resetArm); resetArm = 0; b.textContent = 'Réinitialiser la partie';
+    let n = digits($('#startInput').value);
+    if (!n || n < 10) n = DEFAULT_START;
+    n = Math.min(n, MAX_MONEY);
+    S.start = n;
+    $('#startInput').value = fmt(n);
+    S.stats = { played: 0, won: 0, push: 0, lost: 0, bj: 0, best: n };
+    S.shoe = buildShoe();
+    resetTable(n);
+  }
+
+  /* ---------- skin ---------- */
+  function applySkin() {
+    document.documentElement.style.setProperty('--skin', SKINS[S.skin]);
+    document.querySelectorAll('.skin').forEach((b, i) => b.setAttribute('aria-pressed', String(i === S.skin)));
+  }
+
+  /* ---------- render ---------- */
+  function statusText() {
+    switch (S.phase) {
+      case 'bet': return S.betMsg || (S.bet > 0 ? 'Mise de ' + fmt(S.bet) + '. Distribuez quand vous voulez.' : 'Placez votre mise avec les jetons ou tapez un montant.');
+      case 'dealing': return S.notice + 'Distribution en cours…';
+      case 'player': return S.hint || (S.hands.length > 1 ? 'Main ' + (S.active + 1) + ' sur ' + S.hands.length + '. Que faites-vous ?' : 'À vous de jouer.');
+      case 'dealer': return S.holeHidden ? 'Le croupier retourne sa carte…' : 'Le croupier tire.';
+      default: return S.betMsg || S.resultText;
+    }
+  }
+  function renderShoe() {
+    $('#shoeFill').style.width = (S.shoe.length / (DECKS * 52) * 100) + '%';
+    $('#shoeCount').textContent = S.shoe.length;
+  }
+  function renderAll() {
+    const inBet = S.phase === 'bet' || S.phase === 'result';
+    const broke = inBet && S.bankroll < MIN_BET;
+    $('#betPanel').classList.toggle('off', !inBet || broke);
+    $('#actPanel').classList.toggle('off', S.phase !== 'player');
+    $('#brokePanel').hidden = !broke;
+    $('#recaveBtn').textContent = 'Reprendre ' + fmt(S.start) + ' jetons';
+    document.querySelectorAll('#chips .chip').forEach(b => {
+      b.disabled = !inBet || S.busy || S.bet + Number(b.dataset.v) > S.bankroll;
+    });
+    $('#betAmt').textContent = fmt(S.bet);
+    $('#betInput').disabled = !inBet || S.busy;
+    $('#customBtn').disabled = !inBet || S.busy;
+    $('#dealBtn').disabled = !inBet || S.busy || S.bet < MIN_BET;
+    $('#clearBtn').disabled = !inBet || S.busy || S.bet === 0;
+    $('#sameBtn').disabled = !inBet || S.busy || S.lastBet < MIN_BET || S.bet === Math.min(S.lastBet, maxBet());
+    $('#allBtn').disabled = !inBet || S.busy || S.bankroll < MIN_BET || S.bet === S.bankroll;
+    const live = S.phase === 'player' && !S.busy;
+    const h = S.hands[S.active];
+    $('#hitBtn').disabled = !live;
+    $('#standBtn').disabled = !live;
+    $('#doubleBtn').disabled = !live || !h || !canDouble(h);
+    $('#splitBtn').disabled = !live || !h || !canSplit(h);
+    $('#hintBtn').disabled = !live;
+    S.hands.forEach((x, i) => x.el && x.el.classList.toggle('active', S.phase === 'player' && i === S.active));
+    $('#status').textContent = statusText();
+    renderIdleBet(); renderShoe();
+    $('#stPlayed').textContent = fmt(S.stats.played);
+    $('#stWon').textContent = fmt(S.stats.won);
+    $('#stPush').textContent = fmt(S.stats.push);
+    $('#stBj').textContent = fmt(S.stats.bj);
+    $('#stBest').textContent = fmt(S.stats.best);
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-act]');
+    if (!b || b.disabled) return;
+    switch (b.dataset.act) {
+      case 'chip': addBet(Number(b.dataset.v)); break;
+      case 'custom': customBet(); break;
+      case 'clear': clearBet(); break;
+      case 'same': sameBet(); break;
+      case 'allin': allIn(); break;
+      case 'deal': deal(); break;
+      case 'hit': hit(); break;
+      case 'stand': stand(); break;
+      case 'double': doubleDown(); break;
+      case 'split': splitHand(); break;
+      case 'hint': showHint(); break;
+      case 'recave': resetTable(S.start); break;
+      case 'reset': resetAll(); break;
+      case 'skin': S.skin = Number(b.dataset.v); applySkin(); save(); break;
+      case 'sound':
+        soundOn = !soundOn;
+        b.textContent = 'Son : ' + (soundOn ? 'oui' : 'non');
+        b.setAttribute('aria-pressed', String(soundOn));
+        break;
+    }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.target.tagName === 'INPUT') return;
+    const k = e.key.toLowerCase();
+    if (S.phase === 'player') {
+      if (k === 'h') hit(); else if (k === 's') stand(); else if (k === 'd') doubleDown(); else if (k === 'p') splitHand();
+    } else if (k === 'enter' && e.target.tagName !== 'BUTTON') deal();
+  });
+  $('#betInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); customBet(); } });
+  $('#betInput').addEventListener('input', e => {
+    const d = String(e.target.value).replace(/\D/g, '');
+    e.target.value = d ? fmt(Math.min(parseInt(d, 10), MAX_MONEY)) : '';
+  });
+  $('#startInput').addEventListener('input', e => {
+    const d = String(e.target.value).replace(/\D/g, '');
+    e.target.value = d ? fmt(Math.min(parseInt(d, 10), MAX_MONEY)) : '';
+  });
+
+  /* ---------- init ---------- */
+  $('#chips').innerHTML = CHIPS.map(v =>
+    '<button class="chip c' + v + '" type="button" data-act="chip" data-v="' + v + '" aria-label="Miser ' + fmt(v) + ' jetons"><span>' + chipLabel(v) + '</span></button>'
+  ).join('');
+  $('#skins').insertAdjacentHTML('beforeend', SKINS.map((c, i) =>
+    '<button class="skin" type="button" data-act="skin" data-v="' + i + '" style="--sw:' + c + '" aria-label="Teint ' + (i + 1) + '" aria-pressed="false"></button>'
+  ).join(''));
+  $('#startInput').value = fmt(S.start);
+  applySkin();
+  S.shoe = buildShoe();
+  S.bet = Math.min(S.lastBet, maxBet());
+  showIdle();
+  setBank(S.bankroll, false);
+  renderAll();
+})();
+</script>
+</body>
+</html>
